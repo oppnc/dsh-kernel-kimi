@@ -1,0 +1,41 @@
+{
+  "name": "dsh-kernel-kimi",
+  "version": "0.1.2",
+  "description": "Kimi Code written in DSH form: the full kimi-cli 1.49 tool surface registered as DSH tools.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "LICENSE",
+    "README.md",
+    "README.zh.md",
+    "README.i18n.yaml",
+    "AGENTS.md",
+    "AGENTS.zh-CN.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --check lib/index.js && node test/smoke.test.js"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "kimi",
+    "kimi-cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oppnc/dsh-kernel-kimi.git"
+  }
+}
