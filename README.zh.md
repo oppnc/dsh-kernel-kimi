@@ -12,6 +12,17 @@ DSH 有个很朴素的想法：**一切都是插件**。模型是插件，工具
 
 > 我们用真实 kimi CLI 做过差分验收：同一个任务、同一个目录，两条通道跑出来的结果逐项一致。
 
+## 系统提示词与子代理
+
+`lib/system-prompt.js` 携带上游 **Kimi Code CLI** 的 `system.md`（运行时占位符
+已适配 DSH）；`apply()` 把它注册为 agent 唯一的 system-prompt 段（`complete: true`
++ `suppressRuntimeContext()`）。
+
+`lib/subagents.js` 提供该内核自己的子代理配方——`kimi-agent`（coder）、
+`kimi-explore`、`kimi-plan`——每个都是完整 system prompt 插入上游
+`roleAdditional` 段后的结果。mesh 会加载它们，并在每个子代理上以
+`config.tools` 白名单挂载本插件。
+
 ## 安装
 
 把本包复制进你的 DSH profiles：

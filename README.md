@@ -12,6 +12,17 @@ The payoff is simple: use the kimi CLI natively inside DSH — **no different** 
 
 > We differentially verified against the real kimi CLI: the same task on the same directory produces identical results, item by item.
 
+## System prompt & subagents
+
+`lib/system-prompt.js` carries the upstream **Kimi Code CLI** `system.md` (runtime
+placeholders adapted to DSH); `apply()` registers it as the agent's sole
+system-prompt section (`complete: true` + `suppressRuntimeContext()`).
+
+`lib/subagents.js` ships the kernel's own subagent recipes — `kimi-agent`
+(coder), `kimi-explore`, `kimi-plan` — each = the full system prompt with the
+upstream `roleAdditional` block inserted. The mesh loads them and mounts this
+plugin on each child with a `config.tools` whitelist.
+
 ## Install
 
 Copy the package into your DSH profiles:

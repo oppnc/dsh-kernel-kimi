@@ -4,6 +4,21 @@ Verbose engineering notes for `dsh-kernel-kimi`. This package is "Kimi Code writ
 form": the kimi-cli tool surface re-registered as DSH tools with identical names and schemas,
 implemented on DSH services so the surface survives `toolFilter` scoping.
 
+## System prompt (persona)
+
+`lib/system-prompt.js` carries the upstream **Kimi Code CLI** system prompt, rewritten in DSH
+form: tool names and runtime placeholders are adapted to the DSH tool surface, while the
+behavior rules are kept verbatim. Upstream source: https://github.com/MoonshotAI/kimi-cli/blob/main/src/kimi_cli/agents/default/system.md
+
+`apply()` registers it as the `deployment:persona` section (order `0`) with
+`complete: true`, and calls `systemPrompt.suppressRuntimeContext()`. Together these make
+the vendor prompt the **sole** system-prompt section and drop the runtime-context snapshot,
+so a session on this kernel sees ONLY the vendor's own system prompt.
+
+Consequence for presets: a preset that mounts this plugin MUST NOT also mount a
+`@deepseek-ai/dsh-persona` row — both register `deployment:persona` in the same scope and
+the second registration throws. The kernel presets ship without that row.
+
 ## Tool registry and schema provenance
 
 Each tool inherits its name and parameter schema from the kimi-cli source (Pydantic `Params`
