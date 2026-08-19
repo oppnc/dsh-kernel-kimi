@@ -1,6 +1,6 @@
 {
   "name": "dsh-kernel-kimi",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Kimi Code written in DSH form: the full kimi-cli 1.49 tool surface registered as DSH tools.",
   "type": "module",
   "main": "lib/index.js",

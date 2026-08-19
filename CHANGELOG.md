@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.4
+
+- **`Agent` reuses the L2 recipes.** The inline subagent definitions are gone;
+  `Agent` maps `coder`/`explore`/`plan` onto `lib/subagents.js` (upstream
+  kimi-code `coder/explore/plan.yaml`).
+- **`kimi-agent` toolFilter matches upstream.** Dropped `Agent` and
+  `AskUserQuestion` (not in upstream `coder.yaml`).
+
 ## 1.0.3
 
 - **Upstream system prompt.** `lib/system-prompt.js` carries the Kimi Code CLI
