@@ -25,18 +25,20 @@ plugin on each child with a `config.tools` whitelist.
 
 ## Install
 
-Copy the package into your DSH profiles:
+1. Install the plugin into your profile with the official plugin command:
 
-```bash
-cp -r dsh-kernel-kimi ~/.dsh/profiles/node_modules/dsh-kernel-kimi
-```
+   ```sh
+   dsh plugin --profile web add github:oppnc/dsh-kernel-kimi
+   ```
 
-Then add a row to the `kimi-kernel` agent preset (inside the planning group, so the plan tools can reach `planMode`):
+   This package is a plain plugin (no `dsh.bundle` declaration), so `dsh plugin` installs it as an inactive dependency — that is expected: the preset row below references it by name.
 
-```yaml
-- id: kimi-surface
-  name: dsh-kernel-kimi
-```
+2. Install the `kimi-kernel` agent preset: copy its directory into `~/.dsh/.agent-presets/kimi-kernel/`. The shipped preset already includes the `kimi-surface` row inside the **planning** group (so the plan tools can reach `planMode`); if you author your own preset, add it there:
+
+   ```yaml
+   - id: kimi-surface
+     name: dsh-kernel-kimi
+   ```
 
 ## Usage
 

@@ -25,18 +25,20 @@ DSH 有个很朴素的想法：**一切都是插件**。模型是插件，工具
 
 ## 安装
 
-把本包复制进你的 DSH profiles：
+1. 用官方插件命令把本包装进你的 profile：
 
-```bash
-cp -r dsh-kernel-kimi ~/.dsh/profiles/node_modules/dsh-kernel-kimi
-```
+   ```sh
+   dsh plugin --profile web add github:oppnc/dsh-kernel-kimi
+   ```
 
-然后在 `kimi-kernel` agent 预设里加一行（放在 planning 分组内，这样计划类工具能触达 `planMode`）：
+   本包是普通插件（没有 `dsh.bundle` 声明），`dsh plugin` 会把它作为不激活的依赖安装——这是预期行为：下面的预设行会按名字引用它。
 
-```yaml
-- id: kimi-surface
-  name: dsh-kernel-kimi
-```
+2. 安装 `kimi-kernel` agent 预设：把它的目录复制到 `~/.dsh/.agent-presets/kimi-kernel/`。随附的预设已经在 **planning** 分组里包含 `kimi-surface` 行（这样计划类工具能触达 `planMode`）；如果你自己写预设，就把它加进该分组：
+
+   ```yaml
+   - id: kimi-surface
+     name: dsh-kernel-kimi
+   ```
 
 ## 使用
 
