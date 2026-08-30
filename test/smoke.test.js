@@ -251,11 +251,18 @@ function createHarness() {
   }
 }
 
+// The full 0.39.1 default-on surface (26 upstream wire tools) + WebSearch
+// (upstream gates WebSearch on a configured search provider; the DSH form has
+// a web-service fallback, so it registers unconditionally — see AGENTS.md).
 const EXPECTED_TOOLS = [
-  'ReadFile', 'WriteFile', 'StrReplaceFile', 'Glob', 'Grep', 'Shell',
-  'ReadMediaFile', 'SearchWeb', 'FetchURL', 'TaskList', 'TaskOutput', 'TaskStop',
-  'SetTodoList', 'AskUserQuestion', 'Agent', 'ExitPlanMode', 'EnterPlanMode',
+  'Agent', 'AgentSwarm', 'AskUserQuestion', 'Bash', 'CreateGoal', 'CronCreate',
+  'CronDelete', 'CronList', 'Edit', 'EnterPlanMode', 'ExitPlanMode', 'FetchURL',
+  'GetGoal', 'Glob', 'Grep', 'Read', 'ReadMediaFile', 'SetGoalBudget', 'Skill',
+  'TaskList', 'TaskOutput', 'TaskStop', 'TodoList', 'UpdateGoal', 'WaitFor',
+  'WebSearch', 'Write',
 ]
+// Renamed-away 1.49 names must NOT be present.
+const REMOVED_TOOLS = ['ReadFile', 'WriteFile', 'StrReplaceFile', 'Shell', 'SearchWeb', 'SetTodoList']
 
 async function main() {
   const plugin = pluginMod
@@ -271,6 +278,24 @@ async function main() {
     ok(h.registered.has(name), 'registers ' + name)
   }
   eq(h.registered.size, EXPECTED_TOOLS.length, 'expected tool count')
+  for (const name of REMOVED_TOOLS) {
+    ok(!h.registered.has(name), 'does NOT register removed 1.49 tool ' + name)
+  }
+
+  // Every description and parameter schema is verbatim upstream 0.39.1
+  // (generated surface module), except ReadMediaFile's capabilities paragraph.
+  const { UPSTREAM_SURFACE } = plugin._test
+  for (const [name, def] of h.registered) {
+    const s = UPSTREAM_SURFACE[name]
+    ok(s, name + ' has an upstream surface record')
+    if (name === 'ReadMediaFile') {
+      match(def.description, /DSH form supports image files only/, 'ReadMediaFile description carries the DSH capabilities note')
+      ok(def.description.startsWith(s.description.split('**Capabilities**')[0].trim().slice(0, 40)), 'ReadMediaFile description prefix matches upstream')
+    } else {
+      eq(def.description, s.description, name + ' description is verbatim upstream')
+    }
+    deep(def.parameters, s.parameters, name + ' parameters are verbatim upstream')
+  }
 
   for (const [name, def] of h.registered) {
     ok(def.output && typeof def.output === 'object', name + ' has output')
@@ -295,7 +320,9 @@ async function main() {
   ok(started && started.request, 'startContinuable receives a request')
   deep(started.request.agentOptions, { provider: 'kimi-kernel', model: 'k3-256k' }, 'explicit agentOptions')
   ok(typeof started.request.persona === 'string' && started.request.persona.length > 0, 'request.persona set')
-  ok(started.request.toolFilter && Array.isArray(started.request.toolFilter.allow), 'request.toolFilter set')
+  ok(!('toolFilter' in started.request), 'request.toolFilter deliberately unset '
+    + '(dsh-tools 0.1.1-rc.2 restrict() rejects scope-local names; the mesh agent/created '
+    + 'listener applies the child mask)')
   eq(started.request.maxDepth, 3, 'request.maxDepth is 3')
   match(bg, /kimi-child-1/, 'background return text contains durable child id')
 
@@ -329,23 +356,74 @@ async function main() {
   ok(h.suppressed, 'runtime context suppressed')
 
   h.seed('numbered.txt', 'alpha\nbeta\ngamma\ndelta')
-  const ReadFile = h.registered.get('ReadFile')
-  const slice = await ReadFile.execute({ path: 'numbered.txt', line_offset: 2, n_lines: 2 }, exec)
-  eq(slice, 'beta\ngamma', 'ReadFile returns a raw line slice (no line-number prefix)')
-  const head = await ReadFile.execute({ path: 'numbered.txt', n_lines: 1 }, exec)
-  eq(head, 'alpha', 'ReadFile default offset is the first line')
+  const Read = h.registered.get('Read')
+  const slice = await Read.execute({ path: 'numbered.txt', line_offset: 2, n_lines: 2 }, exec)
+  eq(slice, 'beta\ngamma', 'Read returns a raw line slice (no line-number prefix)')
+  const head = await Read.execute({ path: 'numbered.txt', n_lines: 1 }, exec)
+  eq(head, 'alpha', 'Read default offset is the first line')
 
-  const WriteFile = h.registered.get('WriteFile')
-  const written = await WriteFile.execute({ path: 'out.txt', content: 'hello-kimi' }, exec)
-  match(written, /overwritten/, 'WriteFile overwrite confirmation')
-  eq(h.readSeed('out.txt'), 'hello-kimi', 'WriteFile persisted via mock fs.writeText')
-  const reread = await ReadFile.execute({ path: 'out.txt' }, exec)
-  eq(reread, 'hello-kimi', 'ReadFile sees WriteFile content')
+  const Write = h.registered.get('Write')
+  const written = await Write.execute({ path: 'out.txt', content: 'hello-kimi' }, exec)
+  match(written, /overwritten/, 'Write overwrite confirmation')
+  eq(h.readSeed('out.txt'), 'hello-kimi', 'Write persisted via mock fs.writeText')
+  const reread = await Read.execute({ path: 'out.txt' }, exec)
+  eq(reread, 'hello-kimi', 'Read sees Write content')
 
-  const Shell = h.registered.get('Shell')
-  const sh = await Shell.execute({ command: 'echo hi' }, exec)
-  eq(h.calls.spawn.length, 1, 'Shell foreground uses subprocess.spawn')
-  match(sh, /\[exit code: 0\]/, 'Shell reports exit code')
+  const Edit = h.registered.get('Edit')
+  const edited = await Edit.execute({ path: 'out.txt', old_string: 'kimi', new_string: 'code' }, exec)
+  match(edited, /edited/, 'Edit confirmation')
+  eq(h.readSeed('out.txt'), 'hello-code', 'Edit applied old_string/new_string')
+
+  const TodoList = h.registered.get('TodoList')
+  await TodoList.execute({ todos: [{ title: 'first', status: 'in_progress' }] }, exec)
+  const queried = await TodoList.execute({}, exec)
+  match(queried, /- \[in_progress\] first/, 'TodoList query mode returns the stored list')
+  const cleared = await TodoList.execute({ todos: [] }, exec)
+  match(cleared, /empty/, 'TodoList with [] clears the list')
+
+  const Bash = h.registered.get('Bash')
+  const sh = await Bash.execute({ command: 'echo hi' }, exec)
+  eq(h.calls.spawn.length, 1, 'Bash foreground uses subprocess.spawn')
+  match(sh, /\[exit code: 0\]/, 'Bash reports exit code')
+
+  // WaitFor on an existing background job (harness jobs.wait resolves immediately).
+  const bgsh = await Bash.execute({ command: 'sleep 1', run_in_background: true, description: 'bg' }, exec)
+  match(bgsh, /Background task started: job-1/, 'Bash background returns a task id')
+  const waited = await h.registered.get('WaitFor').execute({ task_id: 'job-1', timeout: 5 }, exec)
+  match(waited, /job-1 settled/, 'WaitFor reports the settled task')
+
+  // Cron tools are honest stubs (no DSH cron service).
+  const cron = await h.registered.get('CronCreate').execute({ name: 'x', schedule: '* * * * *', prompt: 'p' }, exec)
+  match(cron, /no cron\/scheduler service/, 'CronCreate honestly reports the missing service')
+  match(await h.registered.get('CronList').execute({}, exec), /no cron\/scheduler service/, 'CronList stub')
+  match(await h.registered.get('CronDelete').execute({ id: 'x' }, exec), /no cron\/scheduler service/, 'CronDelete stub')
+
+  // Goal tools degrade honestly without a goals service (harness omits it).
+  match(await h.registered.get('GetGoal').execute({}, exec), /goals service is not registered/, 'GetGoal without service')
+  match(await h.registered.get('CreateGoal').execute({ objective: 'o' }, exec), /goals service is not registered/, 'CreateGoal without service')
+  match(await h.registered.get('UpdateGoal').execute({ status: 'complete' }, exec), /goals service is not registered/, 'UpdateGoal without service')
+  match(await h.registered.get('SetGoalBudget').execute({ value: 3, unit: 'turns' }, exec), /goals service is not registered/, 'SetGoalBudget without service')
+
+  // Skill degrades honestly without a skills service.
+  match(await h.registered.get('Skill').execute({ skill: 'x' }, exec), /skills service is not registered/, 'Skill without service')
+
+  // AgentSwarm fan-out: one startContinuable per item with {{item}} substituted.
+  const swarm = await h.registered.get('AgentSwarm').execute({
+    description: 'swarm demo',
+    prompt_template: 'handle {{item}} carefully',
+    items: ['a.ts', 'b.ts'],
+  }, exec)
+  match(swarm, /2 background subagent/, 'AgentSwarm fan-out summary')
+  const swarmCalls = h.calls.startContinuable.filter((c) => /\[\d\/2\]/.test(c.label))
+  eq(swarmCalls.length, 2, 'AgentSwarm starts one child per item')
+  eq(swarmCalls[0].request.prompt[0].text, 'handle a.ts carefully', 'AgentSwarm substitutes {{item}}')
+  eq(swarmCalls[1].request.prompt[0].text, 'handle b.ts carefully', 'AgentSwarm substitutes {{item}} for each item')
+  const swarmResume = await h.registered.get('AgentSwarm').execute({
+    description: 'swarm resume',
+    prompt_template: 'follow up on this',
+    resume_agent_ids: ['kimi-child-1'],
+  }, exec)
+  match(swarmResume, /resumed kimi-child-1/, 'AgentSwarm resume_agent_ids fans follow-ups out')
 
   const { formatKimiSearchResults, htmlToText } = plugin._test
   eq(formatKimiSearchResults([]), '(no results)', 'empty kimi search')

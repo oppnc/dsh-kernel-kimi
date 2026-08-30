@@ -4,11 +4,11 @@ English | [中文](README.zh.md)
 
 DSH runs on one simple idea: **everything is a plugin**. Models, tools, subagents — plug them together however you like.
 
-So we did exactly that: we turned **Kimi Code into a DSH plugin**. The kimi-cli tool surface you already know — `ReadFile`, `WriteFile`, `StrReplaceFile`, `Glob`, `Grep`, `Shell`, `ReadMediaFile`, `SearchWeb`, `FetchURL`, `TaskList`, `TaskOutput`, `TaskStop`, `SetTodoList`, `AskUserQuestion`, `Agent`, `ExitPlanMode`, `EnterPlanMode` — is now a set of native DSH tools. Same names, same schemas, same behavior.
+So we did exactly that: we turned **Kimi Code into a DSH plugin**. The Kimi Code CLI 0.39.1 tool surface you already know — `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash`, `ReadMediaFile`, `WebSearch`, `FetchURL`, `TaskList`, `TaskOutput`, `TaskStop`, `WaitFor`, `TodoList`, `AskUserQuestion`, `Skill`, `Agent`, `AgentSwarm`, `CreateGoal`, `GetGoal`, `SetGoalBudget`, `UpdateGoal`, `CronCreate`, `CronList`, `CronDelete`, `ExitPlanMode`, `EnterPlanMode` — is now a set of native DSH tools. Same names, same schemas, same behavior.
 
 The payoff is simple: use the kimi CLI natively inside DSH — **no different** from opening Kimi Code itself. Every model stays in the environment it knows best — main agent or subagent, it feels like coming home.
 
-`SearchWeb` / `FetchURL` talk to the same Moonshot endpoints the Kimi CLI uses (`api.kimi.com/coding/v1/search` and `/fetch`) with the shared OAuth token. Distilled from kimi-cli **1.49.0**.
+`WebSearch` / `FetchURL` talk to the same Moonshot endpoints the Kimi CLI uses (`api.kimi.com/coding/v1/search` and `/fetch`) with the shared OAuth token. Distilled from Kimi Code CLI **0.39.1** (`@moonshot-ai/kimi-code`).
 
 > We differentially verified against the real kimi CLI: the same task on the same directory produces identical results, item by item.
 

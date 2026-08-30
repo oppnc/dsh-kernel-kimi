@@ -1,7 +1,7 @@
 {
   "name": "dsh-kernel-kimi",
-  "version": "0.1.4",
-  "description": "Kimi Code written in DSH form: the full kimi-cli 1.49 tool surface registered as DSH tools.",
+  "version": "0.1.6",
+  "description": "Kimi Code written in DSH form: the Kimi Code CLI 0.39.1 tool surface registered as DSH tools.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -10,8 +10,10 @@
   },
   "files": [
     "lib/index.js",
+    "lib/ensure-mesh.js",
     "lib/system-prompt.js",
     "lib/subagents.js",
+    "lib/upstream-surface.js",
     "LICENSE",
     "README.md",
     "CHANGELOG.md",
@@ -40,5 +42,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/oppnc/dsh-kernel-kimi.git"
+  },
+  "dependencies": {
+    "dsh-kernel-mesh": "github:oppnc/dsh-kernel-mesh#semver:^0.1.6"
   }
 }
