@@ -1,6 +1,6 @@
 {
   "name": "dsh-kernel-kimi",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Kimi Code written in DSH form: the Kimi Code CLI 0.39.1 tool surface registered as DSH tools.",
   "type": "module",
   "main": "lib/index.js",
@@ -34,16 +34,21 @@
   },
   "keywords": [
     "dsh",
+    "dsh-plugin",
     "deepseek-harness",
     "cordis",
     "kimi",
     "kimi-cli"
   ],
+  "homepage": "https://github.com/oppnc/dsh-kernel-kimi#readme",
+  "bugs": {
+    "url": "https://github.com/oppnc/dsh-kernel-kimi/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/oppnc/dsh-kernel-kimi.git"
   },
   "dependencies": {
-    "dsh-kernel-mesh": "github:oppnc/dsh-kernel-mesh#semver:^0.1.6"
+    "dsh-kernel-mesh": "github:oppnc/dsh-kernel-mesh#semver:^0.1.7"
   }
 }

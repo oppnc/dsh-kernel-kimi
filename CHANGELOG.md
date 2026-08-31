@@ -1,9 +1,13 @@
 # Changelog
 
+## 0.1.7
+
+- **Publish channels.** Preferred install is `dsh plugin --profile web add dsh-kernel-kimi` (npm, once published); GitHub remains a fallback because `lib/` ships in the repository. The mesh dependency is `github:oppnc/dsh-kernel-mesh#semver:^0.1.7`. Keywords include `dsh-plugin`.
+
 ## 0.1.6
 
 - **Mesh dependency + fallback mount.** `dsh-kernel-mesh` is now a declared
-  dependency (`github:oppnc/dsh-kernel-mesh#semver:^0.1.6`), so installing this
+  dependency (`dsh-kernel-mesh@^0.1.6`, originally a GitHub specifier), so installing this
   package also installs the mesh. At `apply()` time the plugin checks for the
   mesh's `kernelMesh` marker service / any `*-kernel` route; when the host
   composition never mounted the mesh, the plugin mounts its own copy
