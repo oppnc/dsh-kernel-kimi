@@ -1,6 +1,6 @@
 {
   "name": "dsh-kernel-kimi",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Kimi Code written in DSH form: the Kimi Code CLI 0.39.1 tool surface registered as DSH tools.",
   "type": "module",
   "main": "lib/index.js",
@@ -49,6 +49,6 @@
     "url": "git+https://github.com/oppnc/dsh-kernel-kimi.git"
   },
   "dependencies": {
-    "dsh-kernel-mesh": "github:oppnc/dsh-kernel-mesh#semver:^0.1.7"
+    "dsh-kernel-mesh": "^0.1.8"
   }
 }

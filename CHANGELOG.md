@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8
+
+- **npm.** Preferred install is `dsh plugin --profile web add dsh-kernel-kimi`. The mesh dependency is now `dsh-kernel-mesh@^0.1.8` on the npm registry.
+
 ## 0.1.7
 
 - **Publish channels.** Preferred install is `dsh plugin --profile web add dsh-kernel-kimi` (npm, once published); GitHub remains a fallback because `lib/` ships in the repository. The mesh dependency is `github:oppnc/dsh-kernel-mesh#semver:^0.1.7`. Keywords include `dsh-plugin`.
